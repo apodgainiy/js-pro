@@ -1,0 +1,30 @@
+header{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 50px;
+    background-color: gray;
+}
+
+.btn-cart{
+    height: 30px;
+}
+
+.container{
+    width: 1000px;
+    margin: 0 auto;
+}
+
+.products{
+    margin-top: 10px;
+}
+
+.product-item{
+    width: 500px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 30px;
+    border: 1px solid gray;
+    padding: 5px;
+}
