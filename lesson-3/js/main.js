@@ -26,17 +26,18 @@ getRequest(`${API}/catalogData.json`)
         console.log(myRequest);
     });
 
-
-
-
 class Products {
     products = [];
     container = null;
+    sum = 0;
 
     constructor(selector) {
         this.container = document.querySelector(selector);
         this._fetchData()
-            .then(() => this._render());
+            .then(() => {
+                this._render();
+                this.sum = this.calcSum();
+            });
     }
 
     calcSum() {
@@ -103,7 +104,9 @@ class CartItem {
 }
 
 const list = new Products('.products');
-console.log(list.calcSum());
+
+setTimeout(()=>console.log(list.calcSum()), 5000);
+
 
 
 

@@ -40,6 +40,7 @@ button{
     grid-template-rows: 1fr;
     padding: 40px 80px;
     justify-content: space-between;
+    width: 100%;
 }
 p {
     margin: 0 0 5px 0;
@@ -74,4 +75,9 @@ img {
     background-color: transparent;
     border-color: #2f2a2d;
     color: #2f2a2d;
+}
+
+main{
+    display: flex;
+    justify-content: space-between;
 }
