@@ -1,23 +1,32 @@
 
 const API = `https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses`;
 
-let getRequest = (url, cb) => {
-    let xhr = new XMLHttpRequest();
-    // window.ActiveXObject -> new ActiveXObject();
-    xhr.open('GET', url, true);
-    xhr.onreadystatechange = () => {
-        if (xhr.readyState !== 4) {
+let getRequest = (url) => {
+    return new Promise((resolve) => {
+        let xhr = new XMLHttpRequest();
+        // window.ActiveXObject -> new ActiveXObject();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState !== 4) {
             return;
-        }
-
-        if (xhr.status !== 200) {
-            console.log('some error');
-            return;
-        }
-
-        cb(xhr.responseText);
-    }
+            }
+            if (xhr.status !== 200) {
+                console.log('some error');
+                return;
+            }
+        resolve(xhr.responseText);
+        };
+        xhr.send();
+    });
 };
+
+getRequest(`${API}/catalogData.json`)
+    .then((x) => {
+        let myRequest = JSON.parse(x); //здесь x почему-то подчеркнут, хотя всё работает
+        console.log(myRequest);
+    });
+
+
 
 
 class Products {
