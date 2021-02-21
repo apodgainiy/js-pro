@@ -81,3 +81,8 @@ main{
     display: flex;
     justify-content: space-between;
 }
+
+.cart{
+    display: none;
+    width: 500px;
+}

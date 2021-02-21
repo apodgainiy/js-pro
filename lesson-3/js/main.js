@@ -29,14 +29,16 @@ getRequest(`${API}/catalogData.json`)
 class Products {
     products = [];
     container = null;
-    sum = 0;
+    cart = null; //объект корзины
 
     constructor(selector) {
         this.container = document.querySelector(selector);
         this._fetchData()
             .then(() => {
                 this._render();
-                this.sum = this.calcSum();
+                this.calcSum();
+                this.cart = new Cart('.cart', '.btn-cart', '.buy-btn');
+                this.cart.products = this.products;
             });
     }
 
@@ -60,7 +62,7 @@ class Products {
                 continue;
             }
 
-            this.container.insertAdjacentHTML('beforeend', product.render())
+            this.container.insertAdjacentHTML('beforeend', product.render());
         }
     }
 }
@@ -79,7 +81,7 @@ class ProductItem {
 
     render() {
         this.rendered = true;
-        return `<div class="product-item">
+        return `<div class="product-item" data-id="${this.id}">
                  <img src="${this.img}" alt="${this.title}">
                  <div class="desc">
                      <h3>${this.title}</h3>
@@ -92,20 +94,116 @@ class ProductItem {
 
 
 class Cart {
-    // some - cartItems array
+    container = null; //место вставки корзины
+    btnCart = null; //кнопка отображения корзины
+    cartShow = false; //Показать корзину
+    cartItems = []; //Массив товаров в корзине
+    products = null; //ссылка на продукты
 
-    // someMethod() - метод делает то-то
+    constructor(container, buttonCart, buttonBuy) {
+        this.container = document.querySelector(container);
+        this.btnCart = document.querySelector(buttonCart);
+        document.querySelector(buttonCart).addEventListener('click', this._showCart.bind(this));//вот тут затупил с this. Сначала не мог понять почему не работает. Вспомнил про bind. Потом вспоминал как его использовать :)
+            this.btnBuy = document.querySelectorAll(buttonBuy);
+            this.btnBuy.forEach(button => button.addEventListener('click', this.add.bind(this)));
+
+
+    }
+
+    _render(){
+        this.cartItems.forEach(item => {
+            if (item.added === false){
+                this.container.insertAdjacentHTML('beforeend', item.render());
+            }
+
+        })
+    }
+
+    //Показать и скрыть корзину
+    _showCart(){
+        if (this.cartShow === false) {
+            this.container.style.display = 'flex';
+            this.cartShow = true;
+            return;
+        }
+
+        if (this.cartShow === true) {
+            this.container.style.display = 'none';
+            this.cartShow = false;
+        }
+
+    }
+
+    //добавить товар в корзину
+    add(button){
+        //добавляю первый товар
+        if(this.cartItems.length === 0){
+            this.cartItems.push(new CartItem(this.products, Number(button.target.parentNode.parentNode.dataset.id)));
+            this._render();
+            //this.cartItems[this.cartItems.push(new CartItem(this.products, Number(button.target.parentNode.parentNode.dataset.id)))].render();
+
+            return;
+        }
+        let isAdd = false;
+        this.cartItems.forEach(item => {
+            if (item.id === Number(button.target.parentNode.parentNode.dataset.id)){
+                isAdd = true;
+            }
+        });
+        if (isAdd === false){
+            this.cartItems.push(new CartItem(this.products, Number(button.target.parentNode.parentNode.dataset.id)));
+            this._render();
+            //this.cartItems[this.cartItems.push(new CartItem(this.products, Number(button.target.parentNode.parentNode.dataset.id)))].render();
+        }
+    }
+
+    //удалить товар из корзины
+    delete(){
+
+    }
 }
 
 class CartItem {
+    title = '';
+    price = 0;
+    id = 0;
+    img = '';
+    added = false; //товар добавлен в корзину
+    quantity = 0; //количество
+
     // some - cartItems array
 
+    constructor(products, productId) {
+        products.forEach(item => {
+            if (item.id === productId){
+                ({ title: this.title, price: this.price, id: this.id, img: this.img } = item);
+
+            }
+        });
+
+
+    }
     // someMethod() - метод делает то-то
+    render() {
+        this.added = true;
+        return `<div class="product-item" data-id="${this.id}">
+                 <img src="${this.img}" alt="${this.title}">
+                 <div class="desc">
+                     <h3>${this.title}</h3>
+                     <p>${this.price}</p>
+                 </div>
+             </div>`
+    }
 }
 
-const list = new Products('.products');
-
 setTimeout(()=>console.log(list.calcSum()), 5000);
+
+const list = new Products('.products');
+//const  cart = new Cart('.cart', '.btn-cart', '.buy-btn');
+
+
+
+
 
 
 
