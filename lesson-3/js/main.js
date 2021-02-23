@@ -81,12 +81,12 @@ class ProductItem {
 
     render() {
         this.rendered = true;
-        return `<div class="product-item" data-id="${this.id}">
+        return `<div class="product-item">
                  <img src="${this.img}" alt="${this.title}">
                  <div class="desc">
                      <h3>${this.title}</h3>
                      <p>${this.price}</p>
-                     <button class="buy-btn">Купить</button>
+                     <button class="buy-btn" data-id="${this.id}">Купить</button>
                  </div>
              </div>`
     }
@@ -96,6 +96,7 @@ class ProductItem {
 class Cart {
     container = null; //место вставки корзины
     btnCart = null; //кнопка отображения корзины
+    btnBuy = null; //кнопки купить
     cartShow = false; //Показать корзину
     cartItems = []; //Массив товаров в корзине
     products = null; //ссылка на продукты
@@ -106,7 +107,6 @@ class Cart {
         document.querySelector(buttonCart).addEventListener('click', this._showCart.bind(this));//вот тут затупил с this. Сначала не мог понять почему не работает. Вспомнил про bind. Потом вспоминал как его использовать :)
             this.btnBuy = document.querySelectorAll(buttonBuy);
             this.btnBuy.forEach(button => button.addEventListener('click', this.add.bind(this)));
-
 
     }
 
@@ -134,32 +134,61 @@ class Cart {
 
     }
 
+    //ищет индекс товара в массиве carItems по id продукта
+    findItemByProductId(id){
+        if (this.cartItems.length === 0){
+            return -1;
+        }
+
+        for(let i=0; i<this.cartItems.length; i++){
+            if (this.cartItems[i].id === id){
+                return i;
+            }
+        }
+    }
+
     //добавить товар в корзину
     add(button){
-        //добавляю первый товар
-        if(this.cartItems.length === 0){
-            this.cartItems.push(new CartItem(this.products, Number(button.target.parentNode.parentNode.dataset.id)));
-            this._render();
-            //this.cartItems[this.cartItems.push(new CartItem(this.products, Number(button.target.parentNode.parentNode.dataset.id)))].render();
-
-            return;
-        }
         let isAdd = false;
+        //проверяю, есть ли товар с таким id в корзине
         this.cartItems.forEach(item => {
-            if (item.id === Number(button.target.parentNode.parentNode.dataset.id)){
+            if (item.id === Number(button.target.dataset.id)){
                 isAdd = true;
             }
         });
+        //если такого товара нет, то добавляю его в корзину, отрисовываю и слушаю кнопку "удалить"
         if (isAdd === false){
-            this.cartItems.push(new CartItem(this.products, Number(button.target.parentNode.parentNode.dataset.id)));
+            this.cartItems.push(new CartItem(this.products, Number(button.target.dataset.id)));
             this._render();
-            //this.cartItems[this.cartItems.push(new CartItem(this.products, Number(button.target.parentNode.parentNode.dataset.id)))].render();
+            document.querySelector(`.btn-delete-${this.cartItems[this.cartItems.length-1].id}`)
+                .addEventListener('click', this.delete.bind(this));
+            return;
+        }
+        //если товар уже есть, то увеличиваю его количество на один
+        if (isAdd === true){
+            this.cartItems[this.findItemByProductId(Number(button.target.dataset.id))].quantity++;
+            document.querySelector(`div[data-id="${button.target.dataset.id}"] p[class="quantity"]`)
+                .innerHTML = `${this.cartItems[this.findItemByProductId(Number(button.target.dataset.id))].quantity} шт.`;
         }
     }
 
     //удалить товар из корзины
-    delete(){
-
+    delete(button){
+        if(this.cartItems[this.findItemByProductId(Number(button.target.dataset.id))].quantity === 1){
+            document.querySelector(`div[data-id="${button.target.dataset.id}"]`).remove();
+            let cartItemsNum = 0;
+            for (let i = 0; i < this.cartItems.length; i++) {
+                if (this.cartItems[i].id === Number(button.target.dataset.id)) {
+                    cartItemsNum = i;
+                    break;
+                }
+            }
+            this.cartItems.splice(cartItemsNum, 1);
+            return;
+        }
+        this.cartItems[this.findItemByProductId(Number(button.target.dataset.id))].quantity--;
+        document.querySelector(`div[data-id="${button.target.dataset.id}"] p[class="quantity"]`)
+            .innerHTML = `${this.cartItems[this.findItemByProductId(Number(button.target.dataset.id))].quantity} шт.`;
     }
 }
 
@@ -169,30 +198,29 @@ class CartItem {
     id = 0;
     img = '';
     added = false; //товар добавлен в корзину
-    quantity = 0; //количество
+    quantity = 1; //количество
 
     // some - cartItems array
 
     constructor(products, productId) {
-        products.forEach(item => {
-            if (item.id === productId){
-                ({ title: this.title, price: this.price, id: this.id, img: this.img } = item);
-
+        //был forEach, переделал на for, чтобы можно было выходить из цикла если элемент найден
+        for(let i=0; i<products.length;i++){
+            if (products[i].id === productId){
+                ({ title: this.title, price: this.price, id: this.id, img: this.img } = products[i]);
+                break;
             }
-        });
-
-
+        }
     }
     // someMethod() - метод делает то-то
     render() {
         this.added = true;
-        return `<div class="product-item" data-id="${this.id}">
+        return `<div class="cart-item" data-id="${this.id}">
                  <img src="${this.img}" alt="${this.title}">
-                 <div class="desc">
-                     <h3>${this.title}</h3>
-                     <p>${this.price}</p>
-                 </div>
-             </div>`
+                 <h3>${this.title}</h3>
+                 <p class="quantity">${this.quantity} шт.</p>
+                 <p>${this.price}</p>
+                 <button class="btn-delete-${this.id}" data-id="${this.id}">Удалить</button>
+                </div>`
     }
 }
 

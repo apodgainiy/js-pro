@@ -84,5 +84,32 @@ main{
 
 .cart{
     display: none;
+    flex-direction: column;
     width: 500px;
+    margin: 20px;
+}
+
+.cart-item{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 5px;
+    border: 1px solid gray;
+}
+
+.cart-item img{
+    margin-left: 10px;
+    width: 30px;
+}
+
+.cart-item h3{
+    margin-left: 10px;
+}
+
+.cart-item p{
+    margin: 0 10px 0 auto;
+}
+
+.cart-item button{
+    margin-right: 10px;
 }
