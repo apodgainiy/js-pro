@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Form</title>
+    <style>
+        form{
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        label{
+            display: flex;
+            justify-content: flex-end;
+        }
+        button, label{
+            width: 270px;
+            margin: 5px 0;
+        }
+        input, textarea{
+            margin-left: 5px;
+            width: 175px;
+        }
+        textarea{
+            resize: none;
+            height: 50px;
+        }
+        .alert{
+            border-color: red;
+        }
+    </style>
+</head>
+<body>
+<form action="#" class="myForm">
+    <label>Имя: <input type="text"></label>
+    <label>Телефон: <input type="text"></label>
+    <label>E-mail: <input type="text"></label>
+    <label>Сообщение: <textarea name="" id=""></textarea></label>
+    <button>Отправить</button>
+</form>
+<script>
+    class FormValidation {
+        form = null;
+        constructor(classForm) {
+            this.form = document.querySelector(classForm);
+        }
+    }
+
+    const form = new FormValidation('.myForm');
+</script>
+</body>
+</html>
