@@ -12,6 +12,7 @@
         label{
             display: flex;
             justify-content: flex-end;
+            position: relative;
         }
         button, label{
             width: 270px;
@@ -28,25 +29,77 @@
         .alert{
             border-color: red;
         }
+        .alertText{
+            position: absolute;
+            left: 105%;
+            width: 270px;
+            color: red;
+        }
     </style>
 </head>
 <body>
-<form action="#" class="myForm">
-    <label>Имя: <input type="text"></label>
-    <label>Телефон: <input type="text"></label>
-    <label>E-mail: <input type="text"></label>
-    <label>Сообщение: <textarea name="" id=""></textarea></label>
-    <button>Отправить</button>
+<form action="#" id="myForm">
+    <label>Имя: <input id="name" type="text"></label>
+    <label>Телефон: <input id="phone" type="text"></label>
+    <label>E-mail: <input id="mail" type="text"></label>
+    <label>Сообщение: <textarea id="text"></textarea></label>
+    <button id="send">Отправить</button>
 </form>
 <script>
     class FormValidation {
         form = null;
-        constructor(classForm) {
-            this.form = document.querySelector(classForm);
+        validationSetting = [];
+        formError = 0;
+
+        constructor(idForm, validationSetting) {
+            this.form = document.querySelector(`[id="${idForm}"]`);
+            this.form.querySelector('button[id="send"]').addEventListener('click', () => this.validation());
+            this.validationSetting = validationSetting;
+        }
+
+        validation(){
+            this.formError = 0;
+            this.validationSetting.forEach(element => {
+                let myElement = this._findById(element.id);
+                //если проверка прошла
+                if (myElement.value.match(element.regExp)) {
+                    myElement.classList.remove('alert');
+                    this._removeAlertText(element, myElement);
+                    return;
+                }
+                //если проверка не прошла
+                if (!myElement.value.match(element.regExp)){
+                    this.formError++;
+                    myElement.classList.add('alert');
+                    this._addAlertText(element, myElement);
+                }
+            });
+        }
+
+        _addAlertText(element, myElement){
+            let alertText = myElement.parentElement.querySelector(`.${element.id}Alert`);
+            if(!alertText) {
+                myElement.insertAdjacentHTML('afterend', `<div class="alertText ${element.id}Alert">${element.rule}</div>`);
+            }
+        }
+
+        _removeAlertText(element, myElement){
+            let alertText = myElement.parentElement.querySelector(`.${element.id}Alert`);
+            if(alertText) {
+                alertText.remove();
+            }
+        }
+
+        _findById(id){
+            return this.form.querySelector(`[id="${id}"]`);
         }
     }
-
-    const form = new FormValidation('.myForm');
+    const validationSetting = [
+        {id: 'name', regExp: /^([a-z а-я]+)$/ig, rule: 'Имя может содержать только буквы'},
+        {id: 'phone', regExp: /^\+7\(\d\d\d\)\d\d\d-\d\d\d\d$/ig, rule: 'Телефон имеет вид +7(000)000-0000'},
+        {id: 'mail', regExp: /^([a-z]+)@([a-z]+).ru$|^([a-z]+).([a-z]+)@([a-z]+).ru$|^([a-z]+)-([a-z]+)@([a-z]+).ru$/ig, rule: 'E-mail имеет вид mymail@mail.ru, или my.mail@mail.ru, или my-mail@mail.ru'}
+    ];
+    const form = new FormValidation('myForm', validationSetting);
 </script>
 </body>
 </html>

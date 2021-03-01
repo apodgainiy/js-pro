@@ -9,7 +9,7 @@ class TemplateReplacement {
         //если элемент - получен через querySelector
         //то он не является nodeList, значит проверка длины нодлиста вернет undefined
         //выполняем замену свойства innerText для одного элемента
-        if(element.length === undefined){
+        if(!element.length){
             this._getFilter(element, regExp);
             return;
         }
@@ -74,5 +74,7 @@ let element = document.querySelectorAll('p');
 */
 
 //Получается, что поменять в два захода - самый быстрый способ
-replacement.replace(element, /'/ig, '"'); //43 matches, 86 steps(~1ms)
-replacement.replace(element, /(\b"\b)/ig, "'"); //9 matches, 122 steps(~0ms)
+document.querySelector('button').addEventListener('click', () => {
+    replacement.replace(element, /'/ig, '"'); //43 matches, 86 steps(~1ms)
+    replacement.replace(element, /(\b"\b)/ig, "'"); //9 matches, 122 steps(~0ms)
+});
