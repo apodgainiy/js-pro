@@ -5,8 +5,15 @@ const App = {
         return {
             API: `https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses`,
             catalogUrl: '/catalogData.json',
+            cartUrl: '/getBasket.json',
             products: [],
-            imgCatalog: 'https://placehold.it/200x150'
+            cartProducts: [],
+            filtered: [],
+            imgCatalog: 'https://placehold.it/200x150',
+            imgCart: 'https://placehold.it/50x100',
+            isVisibleCart: true,
+            searchLine: '',
+            capCart: 'Нет данных'
         }
     },
     methods: {
@@ -16,8 +23,49 @@ const App = {
                 .catch(e => console.log(e));
         },
         addProduct(product) {
-            console.log(product);
-            console.log(product.id_product);
+        this.getJson(`${this.API}/addToBasket.json`)
+            .then(data => {
+                if (data.result) {
+                    let find = this.cartProducts.find(el => el.id_product === product.id_product);
+                    if (find) {
+                        this.changeQuantity(find, 1);
+                        return;
+                    }
+                    let prod = Object.assign({ quantity: 1 }, product);
+                    this.cartProducts.push(prod);
+                } else {
+                    console.log('some error');
+                }
+            })
+        },
+        removeProduct(product) {
+            this.getJson(`${this.API}/deleteFromBasket.json`)
+                .then(data => {
+                    if (data.result) {
+                        if (product.quantity > 1) {
+                            this.changeQuantity(product, -1);
+                            return;
+                        }
+                        this.cartProducts.splice(this.products.indexOf(product), 1);
+                    } else {
+                        console.log('some error');
+                    }
+                })
+        },
+        changeQuantity(element, count) {
+            element.quantity += count;
+        },
+        filterGoods() {
+            const regexp = new RegExp(this.searchLine, 'i');
+            this.filtered = this.products.filter(el => regexp.test(el.product_name));
+            this.products.forEach(el => {
+                const block = document.querySelector(`.product-item[data-id="${el.id_product}"]`);
+                if (!this.filtered.includes(el)) {
+                    block.classList.add('invisible');
+                } else {
+                    block.classList.remove('invisible');
+                }
+            })
         }
     },
     mounted() {
@@ -31,6 +79,12 @@ const App = {
             .then(data => {
                 for (let el of data) {
                     this.products.push(el);
+                }
+            });
+        this.getJson(`${this.API + this.cartUrl}`)
+            .then(data => {
+                for (let el of data.contents) {
+                    this.cartProducts.push(el);
                 }
             });
     }
